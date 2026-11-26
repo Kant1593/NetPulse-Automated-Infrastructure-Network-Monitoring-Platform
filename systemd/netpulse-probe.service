@@ -1,0 +1,7 @@
+[Unit]
+Description=NetPulse Host and Network Health Probe
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/home/kant/netpulse/scripts/host_probe.sh

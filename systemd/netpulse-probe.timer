@@ -1,0 +1,10 @@
+[Unit]
+Description=Run NetPulse Host Probe every minute
+
+[Timer]
+OnBootSec=1min
+OnUnitActiveSec=1min
+Unit=netpulse-probe.service
+
+[Install]
+WantedBy=timers.target
