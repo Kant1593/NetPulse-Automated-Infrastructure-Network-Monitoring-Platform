@@ -2,10 +2,12 @@
 set -euo pipefail
 
 LOG_FILE="/var/log/netpulse_probe.log"
-
-
-
-
+TARGET_URL="http://127.0.0.1"
+DEFAULT_GW=$(ip route show default | awk '{print $3}')
+OPEN_PORTS=$(ss -H -tuln | wc -l)
+DNS_MS=$(dig google.com | awk '/Query time/ {printf "%.1fms",$4}')
+HTTP_RAW=$(curl -s -o /dev/null -m 3 -w "%{http_code} %{time_total}\n" "$TARGET_URL" || echo "000 0") 
+read -r HTTP_CODE HTTP_LATENCY <<< "$HTTP_RAW"
 
 
 LOAD_AVG=$(awk '{print $1}' /proc/loadavg)
@@ -23,5 +25,5 @@ log_msg(){
     local message="$2"
     echo "[$(timestamp)] [$LEVEL] $message" | tee -a "$LOG_FILE"
 }
-host_metrics="load=$LOAD_AVG ram=$RAM_USAGE disk=$DISK_USAGE"
-log_msg "INFO" "$host_metrics"
+METRICS_MSG="load=$LOAD_AVG ram=$RAM_USAGE disk=$DISK_USAGE gw=$DEFAULT_GW ports=$OPEN_PORTS dns=$DNS_MS http=$HTTP_CODE latency=${HTTP_LATENCY}s"
+log_msg "INFO" "$METRICS_MSG"
